@@ -25,7 +25,7 @@ public class FragmentMaps extends Fragment {
     private static FragmentMaps instance;
     private GoogleMap map;
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+        private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
          * Manipulates the map once available.
@@ -38,9 +38,6 @@ public class FragmentMaps extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             map = googleMap;
         }
     };
@@ -77,6 +74,4 @@ public class FragmentMaps extends Fragment {
         map.addMarker(new MarkerOptions().position(markerPos).title("Marker"));
         map.moveCamera(CameraUpdateFactory.newLatLng(markerPos));
     }
-
-
 }

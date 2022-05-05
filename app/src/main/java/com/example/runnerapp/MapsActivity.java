@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.util.Log;
 
@@ -32,6 +33,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
 
     private FragmentMaps fragmentMaps;
 
+    private boolean isRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,16 +49,27 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
         fragmentMaps = FragmentMaps.getInstance();
-        lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        lastLocation = new Location("");
+        lastLocation.setLatitude(0.0d);
+        lastLocation.setLongitude(0.0d);
+
+        isRunning = false;
+        //lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//change to impossible location
+        //fragmentMaps.setMarker(lastLocation.getLatitude(), lastLocation.getLongitude());
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        if (location.getLatitude() != lastLocation.getLatitude() || location.getLongitude() != lastLocation.getLongitude())
+        if (isRunning)
         {
-            fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
-            lastLocation = location;
+            if (location.getLatitude() != lastLocation.getLatitude() || location.getLongitude() != lastLocation.getLongitude())
+            {
+                fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
+                lastLocation = location;
+            }
         }
+
 
 
         //txtLat = (TextView) findViewById(R.id.textview1);
@@ -76,5 +89,20 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.d("Latitude","status");
+    }
+
+    public void startStopButton(View view)
+    {
+        if (!isRunning)
+        {
+            isRunning = true;
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                Log.d("Error", "lack of user permission");
+                return;
+            }
+            Location lastKnownLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            fragmentMaps.setMarker(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude());
+        }
     }
 }
