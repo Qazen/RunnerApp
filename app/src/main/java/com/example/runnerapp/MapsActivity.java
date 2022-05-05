@@ -12,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.util.Log;
 
@@ -21,6 +22,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MapsActivity extends AppCompatActivity implements LocationListener {
 
@@ -29,7 +32,21 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
     private FragmentMaps fragmentMaps;
     private boolean isRunning;
     private boolean isPaused;
+    private boolean isShowingStats;
     private ArrayList<LatLng> listOfPoints;
+
+    private Button startStopButton;
+    private Button pauseResumeButton;
+    private TextView statsTextView;
+
+    String statsText;
+    Timer timer;
+    int counter;
+    int seconds;
+    int minutes;
+    int hours;
+    float distance;//in meters
+    float speed;//in km/h
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,22 +63,30 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
 
         fragmentMaps = FragmentMaps.getInstance();
 
-        lastLocation = new Location("");
-        lastLocation.setLatitude(0.0d);
-        lastLocation.setLongitude(0.0d);
+        lastLocation = null;
 
         isRunning = false;
         isPaused = false;
+        isShowingStats = false;
         listOfPoints = new ArrayList<>();
+
+        startStopButton = (Button) findViewById(R.id.startStopButton);
+        pauseResumeButton = (Button) findViewById(R.id.pauseResumeButton);
+        statsTextView = (TextView) findViewById(R.id.statsTextView);
+        statsTextView.setVisibility(View.INVISIBLE);
+
     }
 
     @Override
     public void onLocationChanged(Location location) {
         if (isRunning && !isPaused)
         {
-            if (location.getLatitude() != lastLocation.getLatitude() || location.getLongitude() != lastLocation.getLongitude())
+            if (lastLocation == null || location.getLatitude() != lastLocation.getLatitude() || location.getLongitude() != lastLocation.getLongitude())
             {
-                //fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
+                if (lastLocation != null)
+                {
+                    distance += lastLocation.distanceTo(location);
+                }
                 lastLocation = location;
                 listOfPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
                 fragmentMaps.drawPath(listOfPoints);
@@ -87,9 +112,10 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
 
     public void startStopButton(View view)
     {
-        if (!isRunning)
+        isRunning = !isRunning;
+        if (isRunning)
         {
-            isRunning = true;
+            startStopButton.setText("Stop");
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             {
                 Log.d("Error", "lack of user permission");
@@ -98,11 +124,81 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
             Location lastKnownLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             fragmentMaps.setMarker(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude());
             listOfPoints.add(new LatLng(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude()));
+
+            startStatsUpdater();
         }
     }
 
     public void pauseResumeButton(View view)
     {
         isPaused = !isPaused;
+        if (isPaused)
+        {
+            pauseResumeButton.setText("Resume");
+        }
+        else
+        {
+            pauseResumeButton.setText("Pause");
+        }
     }
+
+    public void statsButton(View view)
+    {
+        isShowingStats = !isShowingStats;
+        if (isShowingStats)
+        {
+            statsTextView.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            statsTextView.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void startStatsUpdater()
+    {
+        timer = new Timer();
+        counter = 0;
+        seconds = 0;
+        minutes = 0;
+        hours = 0;
+        distance = 0;
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        if (isRunning && !isPaused)
+                        {
+                            counter++;
+                            seconds = counter%60;
+                            minutes = (counter/60)%60;
+                            hours = counter/60/60;
+                            speed = 1.0f * distance * 60 * 60 / 1000 / counter;
+                            statsText = "Time elapsed: "
+                                    + String.format(java.util.Locale.US, "%02d", hours)
+                                    + ":"
+                                    + String.format(java.util.Locale.US, "%02d", minutes)
+                                    + ":"
+                                    + String.format(java.util.Locale.US, "%02d", seconds)
+                                    + "\n"
+                                    + "Distance moved: "
+                                    + String.format(java.util.Locale.US, "%.0f", distance)
+                                    + " meters"
+                                    + "\n"
+                                    + "Approximate speed: "
+                                    + String.format(java.util.Locale.US, "%.2f", speed)
+                                    + " km/h";
+                        }
+                        statsTextView.setText(statsText);
+                    }
+                });
+            }
+        }, 1000, 1000);
+    }
+
 }

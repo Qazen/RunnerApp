@@ -82,8 +82,8 @@ public class FragmentMaps extends Fragment {
         {
             marker.remove();
         }
-        marker = map.addMarker(new MarkerOptions().position(markerPos).title("Marker"));
-        map.moveCamera(CameraUpdateFactory.newLatLng(markerPos));
+        marker = map.addMarker(new MarkerOptions().position(markerPos).title("You"));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(markerPos, 15.0f));
     }
 
     //public GoogleMap getMap() {return map;}
