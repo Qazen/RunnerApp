@@ -90,8 +90,12 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
                 lastLocation = location;
                 listOfPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
                 fragmentMaps.drawPath(listOfPoints);
-                fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
             }
+        }
+        if (location != null && !isPaused)
+        {
+            lastLocation = location;
+            fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
         }
     }
 
@@ -121,9 +125,9 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
                 Log.d("Error", "lack of user permission");
                 return;
             }
-            Location lastKnownLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            fragmentMaps.setMarker(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude());
-            listOfPoints.add(new LatLng(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude()));
+            //Location lastKnownLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            //fragmentMaps.setMarker(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude());
+            //listOfPoints.add(new LatLng(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude()));
 
             startStatsUpdater();
         }
