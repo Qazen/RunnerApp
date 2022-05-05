@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -15,25 +16,20 @@ import android.widget.TextView;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.security.Permission;
+import java.util.ArrayList;
 
 public class MapsActivity extends AppCompatActivity implements LocationListener {
 
     protected LocationManager locationManager;
-    protected LocationListener locationListener;
-    protected Context context;
-    TextView txtLat;
-    String lat;
-    String provider;
-    protected String latitude,longitude;
-    protected boolean gps_enabled,network_enabled;
-
     private Location lastLocation;
-
     private FragmentMaps fragmentMaps;
-
     private boolean isRunning;
+    private boolean isPaused;
+    private ArrayList<LatLng> listOfPoints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,25 +51,23 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         lastLocation.setLongitude(0.0d);
 
         isRunning = false;
-        //lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);//change to impossible location
-        //fragmentMaps.setMarker(lastLocation.getLatitude(), lastLocation.getLongitude());
+        isPaused = false;
+        listOfPoints = new ArrayList<>();
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        if (isRunning)
+        if (isRunning && !isPaused)
         {
             if (location.getLatitude() != lastLocation.getLatitude() || location.getLongitude() != lastLocation.getLongitude())
             {
-                fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
+                //fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
                 lastLocation = location;
+                listOfPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                fragmentMaps.drawPath(listOfPoints);
+                fragmentMaps.setMarker(location.getLatitude(), location.getLongitude());
             }
         }
-
-
-
-        //txtLat = (TextView) findViewById(R.id.textview1);
-        //txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
     }
 
     @Override
@@ -103,6 +97,12 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
             }
             Location lastKnownLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             fragmentMaps.setMarker(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude());
+            listOfPoints.add(new LatLng(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude()));
         }
+    }
+
+    public void pauseResumeButton(View view)
+    {
+        isPaused = !isPaused;
     }
 }

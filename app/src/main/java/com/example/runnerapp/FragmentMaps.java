@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -18,12 +19,18 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
 
 public class FragmentMaps extends Fragment {
 
     private static FragmentMaps instance;
     private GoogleMap map;
+    private Marker marker;
 
         private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -68,10 +75,25 @@ public class FragmentMaps extends Fragment {
         return instance;
     }
 
-    public void setMarker(double latitude, double longitude)
+    public void setMarker(double latitude, double longitude)//reimplement in maps activity
     {
         LatLng markerPos = new LatLng(latitude, longitude);
-        map.addMarker(new MarkerOptions().position(markerPos).title("Marker"));
+        if (marker != null)
+        {
+            marker.remove();
+        }
+        marker = map.addMarker(new MarkerOptions().position(markerPos).title("Marker"));
         map.moveCamera(CameraUpdateFactory.newLatLng(markerPos));
+    }
+
+    //public GoogleMap getMap() {return map;}
+
+    public void drawPath(ArrayList<LatLng> listOfPoints)
+    {
+        PolylineOptions pathOptions = new PolylineOptions();
+        pathOptions.width(5);
+        pathOptions.color(Color.RED);
+        pathOptions.addAll(listOfPoints);
+        map.addPolyline(pathOptions);
     }
 }
