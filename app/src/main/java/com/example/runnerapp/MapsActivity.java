@@ -57,19 +57,12 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
     float speed;//in km/h
 
     private File runsFile;
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, 1);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
-            Log.d("Error", "lack of user permission");
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
         fragmentMaps = FragmentMaps.getInstance();
 
@@ -87,8 +80,18 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         statsTextView.setVisibility(View.INVISIBLE);
 
         Intent intent = getIntent();
-        String username = intent.getStringExtra(MainActivity.USERNAME);
+        username = intent.getStringExtra(MainActivity.USERNAME);
         runsFile = new File(getApplicationContext().getFilesDir(), username + ".txt");
+
+        requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, 1);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            Log.d("Error", "lack of user permission");
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+
     }
 
     @Override
@@ -161,7 +164,17 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
              PrintWriter out = new PrintWriter(bw))
         {
             out.println("#");
-            out.println(Calendar.getInstance().getTime().toString());
+            Calendar calendar = Calendar.getInstance();
+            String date = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH))
+                    + ":"
+                    + Integer.toString(calendar.get(Calendar.MONTH))
+                    + ":"
+                    + Integer.toString(calendar.get(Calendar.YEAR))
+                    + " "
+                    + Integer.toString(calendar.get(Calendar.HOUR))
+                    + ":"
+                    + Integer.toString(calendar.get(Calendar.MINUTE));
+            out.println(date);
             out.println(statsText);
             for (int i=0; i<listOfPoints.size(); i++)
             {
@@ -203,7 +216,9 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         }
         else
         {
-
+            Intent intent = new Intent(this, HistoryActivity.class);
+            intent.putExtra("username", username);
+            startActivity(intent);
         }
     }
 

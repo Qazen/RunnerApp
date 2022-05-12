@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     private void startAppAs(String username)
     {
         Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra(USERNAME, username);//to be handled later
+        intent.putExtra(USERNAME, username);
         startActivity(intent);
     }
 
