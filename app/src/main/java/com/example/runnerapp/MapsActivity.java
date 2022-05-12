@@ -5,6 +5,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -20,8 +21,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,6 +44,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
 
     private Button startStopButton;
     private Button pauseResumeButton;
+    private Button historyStatsButton;
     private TextView statsTextView;
 
     String statsText;
@@ -47,6 +55,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
     int hours;
     float distance;//in meters
     float speed;//in km/h
+
+    private File runsFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +82,13 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
 
         startStopButton = (Button) findViewById(R.id.startStopButton);
         pauseResumeButton = (Button) findViewById(R.id.pauseResumeButton);
+        historyStatsButton = (Button) findViewById(R.id.historyStatsButton);
         statsTextView = (TextView) findViewById(R.id.statsTextView);
         statsTextView.setVisibility(View.INVISIBLE);
 
+        Intent intent = getIntent();
+        String username = intent.getStringExtra(MainActivity.USERNAME);
+        runsFile = new File(getApplicationContext().getFilesDir(), username + ".txt");
     }
 
     @Override
@@ -120,6 +134,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         if (isRunning)
         {
             startStopButton.setText("Stop");
+            historyStatsButton.setText("Stats");
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             {
                 Log.d("Error", "lack of user permission");
@@ -130,6 +145,32 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
             //listOfPoints.add(new LatLng(lastKnownLoc.getLatitude(), lastKnownLoc.getLongitude()));
 
             startStatsUpdater();
+        }
+        else
+        {
+            startStopButton.setText("Start");
+            historyStatsButton.setText("History");
+            saveRunData();
+        }
+    }
+
+    private void saveRunData()
+    {
+        try (FileWriter fw = new FileWriter(runsFile, true);
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter out = new PrintWriter(bw))
+        {
+            out.println("#");
+            out.println(Calendar.getInstance().getTime().toString());
+            out.println(statsText);
+            for (int i=0; i<listOfPoints.size(); i++)
+            {
+                out.print(listOfPoints.get(i).latitude);
+                out.print(listOfPoints.get(i).longitude);
+            }
+            out.println("$");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -146,16 +187,23 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         }
     }
 
-    public void statsButton(View view)
+    public void historyStatsButton(View view)
     {
-        isShowingStats = !isShowingStats;
-        if (isShowingStats)
+        if (isRunning)
         {
-            statsTextView.setVisibility(View.VISIBLE);
+            isShowingStats = !isShowingStats;
+            if (isShowingStats)
+            {
+                statsTextView.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                statsTextView.setVisibility(View.INVISIBLE);
+            }
         }
         else
         {
-            statsTextView.setVisibility(View.INVISIBLE);
+
         }
     }
 

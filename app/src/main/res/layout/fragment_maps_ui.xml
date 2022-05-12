@@ -39,15 +39,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/buttonStats"
+        android:id="@+id/historyStatsButton"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="650dp"
         android:backgroundTint="#ed9200"
         android:ems="7"
-        android:onClick="statsButton"
-        android:text="Stats"
+        android:onClick="historyStatsButton"
+        android:text="History"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
