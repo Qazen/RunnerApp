@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,13 +48,13 @@ public class HistoryActivity extends AppCompatActivity {
     {
         super.onStart();
         Log.d("Start:", "entered");
-        TextView textView = new TextView(this);
-        textView.setText("aaabbb");
-        mLayout.addView(textView);
+//        TextView textView = new TextView(this);
+//        textView.setText("aaabbb");
+//        mLayout.addView(textView);
         loadHistory();
-        TextView textView2 = new TextView(this);
-        textView2.setText("ccddaa");
-        mLayout.addView(textView2);
+//        TextView textView2 = new TextView(this);
+//        textView2.setText("ccddaa");
+//        mLayout.addView(textView2);
     }
 
     private void loadHistory()
@@ -67,10 +68,19 @@ public class HistoryActivity extends AppCompatActivity {
             {
                 Log.d("loadHistoryForIf:", "entered");
                 String date = historyInLines.get(i+1);
+                String time = historyInLines.get(i+2);
+                String distance = historyInLines.get(i+3);
+                String speed = historyInLines.get(i+4);
+
                 TextView textView = new TextView(this);
-                textView.setText(date);
+                textView.setText(date+"\n"+time+"\n"+distance+"\n"+speed);
                 System.out.println(date);
                 mLayout.addView(textView);
+
+                TextView view = new TextView(this);
+                view.setBackgroundColor(5);
+                view.setLayoutParams(new LinearLayout.LayoutParams(50, 1));
+                mLayout.addView(view);
             }
         }
     }
@@ -91,15 +101,25 @@ public class HistoryActivity extends AppCompatActivity {
         String strLine;
         ArrayList<String> lines = new ArrayList<String>();
         Log.d("getFileContentInLines:", "after");
+//        try {
+//            while ((strLine = reader.readLine()) != null) {
+//                String lastWord = strLine.substring(strLine.lastIndexOf(" ")+1);
+//                lines.add(lastWord);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            Log.d("getFileContentInLines:", "not found 2");
+//        }
+
         try {
             while ((strLine = reader.readLine()) != null) {
-                String lastWord = strLine.substring(strLine.lastIndexOf(" ")+1);
-                lines.add(lastWord);
+                lines.add(strLine);
             }
         } catch (IOException e) {
             e.printStackTrace();
             Log.d("getFileContentInLines:", "not found 2");
         }
+
         Log.d("getFileContentInLines:", "after2");
         try {
             reader.close();

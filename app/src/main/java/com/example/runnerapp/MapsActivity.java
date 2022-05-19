@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -59,6 +60,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
     private File runsFile;
     String username;
 
+    private MediaPlayer mMusic;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +81,9 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         historyStatsButton = (Button) findViewById(R.id.historyStatsButton);
         statsTextView = (TextView) findViewById(R.id.statsTextView);
         statsTextView.setVisibility(View.INVISIBLE);
+
+        mMusic = MediaPlayer.create(this, R.raw.sample_music);
+        mMusic.setLooping(true);
 
         Intent intent = getIntent();
         username = intent.getStringExtra(MainActivity.USERNAME);
@@ -136,6 +142,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         isRunning = !isRunning;
         if (isRunning)
         {
+            mMusic.start();
             startStopButton.setText("Stop");
             historyStatsButton.setText("Stats");
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -151,6 +158,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         }
         else
         {
+            mMusic.pause();
             startStopButton.setText("Start");
             historyStatsButton.setText("History");
             saveRunData();
@@ -175,6 +183,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
                     + ":"
                     + Integer.toString(calendar.get(Calendar.MINUTE));
             out.println(date);
+            Log.d("dateGenerator: ", date);
             out.println(statsText);
             for (int i=0; i<listOfPoints.size(); i++)
             {
@@ -192,10 +201,12 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         isPaused = !isPaused;
         if (isPaused)
         {
+            mMusic.pause();
             pauseResumeButton.setText("Resume");
         }
         else
         {
+            mMusic.start();
             pauseResumeButton.setText("Pause");
         }
     }

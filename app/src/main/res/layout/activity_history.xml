@@ -9,7 +9,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="#f00"
+        android:divider="#FF0000"
         android:dividerHeight="1dp"
         android:listSelector="#0f0"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -19,9 +19,11 @@
 
         <LinearLayout
             android:id="@+id/historyLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical" >
+
+        </LinearLayout>
 
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
