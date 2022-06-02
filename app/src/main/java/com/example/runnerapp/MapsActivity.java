@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -62,6 +63,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
 
     private MediaPlayer mMusic;
 
+    private boolean statsUpdaterHasBeenStarted;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +77,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         isRunning = false;
         isPaused = false;
         isShowingStats = false;
+        statsUpdaterHasBeenStarted = false;
         listOfPoints = new ArrayList<>();
 
         startStopButton = (Button) findViewById(R.id.startStopButton);
@@ -172,7 +176,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
              PrintWriter out = new PrintWriter(bw))
         {
             out.println("#");
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
             String date = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH))
                     + ":"
                     + Integer.toString(calendar.get(Calendar.MONTH))
@@ -241,6 +245,14 @@ public class MapsActivity extends AppCompatActivity implements LocationListener 
         minutes = 0;
         hours = 0;
         distance = 0;
+        listOfPoints.clear();
+        fragmentMaps.clearPath();
+
+        if (statsUpdaterHasBeenStarted)
+        {
+            return;
+        }
+        statsUpdaterHasBeenStarted = true;
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override

@@ -1,10 +1,12 @@
 package com.example.runnerapp;
 
+import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -74,12 +76,16 @@ public class HistoryActivity extends AppCompatActivity {
 
                 TextView textView = new TextView(this);
                 textView.setText(date+"\n"+time+"\n"+distance+"\n"+speed);
+                textView.setBackgroundResource(R.drawable.rectangle);
+                textView.setPadding(1, 1, 1, 1);
+                textView.setGravity(Gravity.CENTER);
                 System.out.println(date);
                 mLayout.addView(textView);
 
                 TextView view = new TextView(this);
                 view.setBackgroundColor(5);
                 view.setLayoutParams(new LinearLayout.LayoutParams(50, 1));
+
                 mLayout.addView(view);
             }
         }

@@ -31,6 +31,8 @@ public class FragmentMaps extends Fragment {
     private static FragmentMaps instance;
     private GoogleMap map;
     private Marker marker;
+    private PolylineOptions pathOptions;
+    private Polyline polyline;
 
         private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -90,10 +92,19 @@ public class FragmentMaps extends Fragment {
 
     public void drawPath(ArrayList<LatLng> listOfPoints)
     {
-        PolylineOptions pathOptions = new PolylineOptions();
+        clearPath();
+        pathOptions = new PolylineOptions();
         pathOptions.width(5);
         pathOptions.color(Color.RED);
         pathOptions.addAll(listOfPoints);
-        map.addPolyline(pathOptions);
+        polyline = map.addPolyline(pathOptions);
+    }
+
+    public void clearPath()
+    {
+        if (polyline != null)
+        {
+            polyline.remove();
+        }
     }
 }
